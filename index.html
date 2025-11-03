@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryLearner - Juego Interactivo Final</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #3f51b5; /* Azul Índigo */
+            --secondary-color: #ff9800; /* Naranja */
+            --background-light: #f9f9f9;
+            --text-dark: #333;
+            --text-light: #fff;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: var(--text-light);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        .app-header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 20px 0;
+            text-align: center;
+            margin: -30px -30px 20px -30px; 
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        
+        /* ESTILOS DEL ENCABEZADO PERSONALIZADO */
+        .app-header h1 {
+            color: var(--text-light); /* Título principal blanco */
+            margin-bottom: 5px;
+            font-size: 2.2em;
+        }
+        .app-header p {
+            margin: 2px 0;
+            font-size: 0.95em;
+            color: #c5cae9; /* Texto secundario más claro */
+        }
+        .app-header #datetime {
+            font-size: 0.85em;
+            margin-top: 10px;
+            font-weight: 400;
+        }
+        /* FIN ESTILOS DEL ENCABEZADO */
+
+        h2, h3, h4 {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* --- Controles y Selectores --- */
+        #story-selection select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            appearance: none; 
+            background-color: white;
+        }
+
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 15px;
+            background-color: #e8eaf6; 
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .timer-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--text-dark);
+            padding: 5px;
+        }
+
+        .speed-controls button, #start-stop-reading, #finish-reading {
+            padding: 10px 15px;
+            margin: 5px 5px 5px 0;
+            border: none;
+            border-radius: 50px; 
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+        }
+
+        .speed-controls button {
+            background-color: #00bcd4; 
+            color: var(--text-light);
+        }
+        .speed-controls button:hover {
+            background-color: #0097a7;
+            transform: translateY(-1px);
+        }
+
+        #start-stop-reading {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            margin-left: 10px;
+        }
+        #start-stop-reading:hover {
+            background-color: #fb8c00;
+        }
+        #start-stop-reading:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #finish-reading {
+            background-color: var(--success-color);
+            color: var(--text-light);
+            width: 100%;
+            margin-top: 20px;
+        }
+        #finish-reading:hover {
+            background-color: #388e3c;
+        }
+        
+        /* --- Contenido de la Historia --- */
+        .story-content {
+            font-size: 1.2em;
+            line-height: 1.8;
+            padding: 25px;
+            border: 1px solid #ddd;
+            border-left: 5px solid var(--primary-color); 
+            border-radius: 8px;
+            min-height: 200px;
+            text-align: justify;
+            background-color: #fff;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+            overflow-y: auto; 
+            max-height: 400px;
+        }
+        .highlight {
+            background-color: #ffeb3b; 
+            padding: 2px 0;
+            border-radius: 3px;
+        }
+
+        /* --- Quiz --- */
+        .quiz-container {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            margin-top: 20px;
+        }
+        .quiz-question input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 5px; 
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .quiz-question .feedback-text {
+            color: var(--error-color);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #submit-quiz {
+            background-color: var(--primary-color) !important;
+            color: var(--text-light);
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-transform: uppercase;
+        }
+        #submit-quiz:hover {
+            background-color: #303f9f !important;
+        }
+
+        /* Feedback del Quiz */
+        #quiz-result strong {
+            color: var(--primary-color);
+        }
+        .quiz-question input[style*="d4edda"] { 
+            border-color: var(--success-color) !important;
+            background-color: #e6ffed !important; 
+        }
+        .quiz-question input[style*="f8d7da"] { 
+            border-color: var(--error-color) !important;
+            background-color: #fce8e8 !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <h1>Practica Leyendo 📚</h1>
+        <p>Docente: Edelmira Barraza</p>
+        <p>Creado por: José Alberto Guardado</p>
+        <p id="datetime"></p>
+    </header>
+
+    <main class="container">
+        <section class="story-selection" id="story-selection">
+            <h2>Paso 1: Selecciona una Historia</h2>
+            <select id="topic-selector">
+                <option value="default" disabled selected>Elige un tema</option>
+                <option value="fairytales">Cuentos de Hadas Clásicos</option>
+                <option value="mythology">Mitología</option>
+                <option value="biographies">Biografías de Famosos</option>
+            </select>
+            <select id="story-selector" disabled>
+                <option value="default" disabled selected>Elige una historia</option>
+            </select>
+        </section>
+
+        <section class="reading-interface hidden" id="reading-area">
+            <h3 id="story-title"></h3>
+
+            <div class="controls-bar">
+                <div class="timer-display">
+                    Tiempo: <span id="timer">00:00:00</span>
+                </div>
+                <div class="speed-controls">
+                    <button id="speed-slow" data-wpm="60">Lento (60 WPM)</button>
+                    <button id="speed-medium" data-wpm="120">Medio (120 WPM)</button>
+                    <button id="speed-fast" data-wpm="200">Rápido (200 WPM)</button>
+                </div>
+                <button id="start-stop-reading" disabled>Selecciona Velocidad</button>
+            </div>
+
+            <div class="story-content" id="story-text">
+                <p>Selecciona una historia y luego elige una velocidad para comenzar la lectura cronometrada.</p>
+            </div>
+            
+            <button id="finish-reading" class="hidden">Terminar Lectura y Evaluar</button>
+
+            <div class="quiz-container hidden" id="quiz-container">
+                <h4>Paso 2: Cuestionario de Comprensión</h4>
+                <div id="quiz-questions"></div>
+                <button id="submit-quiz">Ver Resultados</button>
+                <p id="quiz-result"></p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- BASE DE DATOS DE HISTORIAS Y QUIZZES ---
+        const STORIES_DATA = {
+            fairytales: [
+                {
+                    id: 'piggs',
+                    title: 'The Three Little Pigs',
+                    text: 'Once upon a time there were three little pigs. When their mother told them they were old enough to seek their fortunes, they each set out. The first little pig was lazy and built a simple house of straw because it was the fastest way to build shelter. The second pig was a little smarter, but still somewhat careless, and he built his house out of sticks. The third pig was very industrious and careful; he spent many days building his house entirely out of strong bricks. Soon, a big bad wolf, lurking in the forest, came upon the first pig\'s house. "Little pig, little pig, let me come in!" cried the wolf. "Not by the hair of my chinny chin chin!" replied the pig. So the wolf huffed and he puffed and he blew the straw house down in an instant. The terrified pig ran to the house of sticks. The wolf followed and said the same words to the second pig. He huffed and puffed, and after a little more effort, the stick house also fell. Both scared pigs rushed to the brick house. The wolf tried with all his might against the brick structure. He huffed and he puffed, and he huffed and he puffed, but he could not blow it down. Frustrated, the wolf tried to climb down the chimney, but the third pig was clever and lit a fire, sending the wolf running away forever.',
+                    quiz: [
+                        { question: 'How many pigs were there?', answer: 'Three' },
+                        { question: 'What material did the third pig use?', answer: 'Bricks' }
+                    ]
+                },
+                {
+                    id: 'redhood',
+                    title: 'Little Red Riding Hood',
+                    text: 'A sweet young girl, known as Little Red Riding Hood, lived in a small village near a large forest. One sunny morning, her mother asked her to take a basket of cake and wine to her sick grandmother who lived deep within the woods. Her mother strictly warned her to stay on the path and not talk to any strangers. Little Red Riding Hood promised to obey, took the basket, and started her journey. As she walked, a cunning wolf approached her. He asked her where she was going, and forgetting her mother\'s warning, she cheerfully told him about her grandmother\'s cottage. The wolf then suggested she pick some beautiful wildflowers for her grandmother. While the girl was distracted picking flowers, the wolf quickly took a shortcut to the cottage. He knocked and disguised his voice to sound like the girl. The grandmother, who was very weak, told him to pull the latch. The wolf burst in and immediately swallowed the old woman whole! He then put on the grandmother\'s cap and nightgown, jumped into bed, and waited for Little Red Riding Hood.',
+                    quiz: [
+                        { question: 'Where was the grandmother living?', answer: 'In the woods' },
+                        { question: 'What did the wolf suggest the girl pick?', answer: 'Wildflowers' }
+                    ]
+                }
+            ],
+            mythology: [
+                {
+                    id: 'icarus',
+                    title: 'Icarus and Daedalus',
+                    text: 'Daedalus was a brilliant inventor and craftsman from Athens, famous for creating the Labyrinth for King Minos of Crete. After helping Theseus escape the maze, Daedalus and his young son, Icarus, were imprisoned in a high tower on the island to prevent Daedalus from sharing his secrets. Desperate for freedom, Daedalus conceived a daring plan: to escape by air. He gathered countless feathers, securing the smallest with thread and the largest with wax, fashioning two pairs of magnificent wings. Before their escape, Daedalus delivered a solemn warning to his son. "My son," he said, "fly a middle course. If you fly too low, the sea spray will weigh down the feathers. If you fly too high, the heat of the sun will melt the wax that holds them together." He strapped the wings onto Icarus and then himself. Icarus, however, was overcome by the sheer exhilaration of flight. He forgot his father’s grave advice. In youthful arrogance, he soared higher and higher, aiming for the heavens. Soon, the blazing sun began to soften the wax. As the heat intensified, the wax melted away, and the feathers detached. Icarus waved his arms, but found only air to support him. He plunged into the deep blue sea, which was later named the Icarian Sea in his memory.',
+                    quiz: [
+                        { question: 'What were the wings made of?', answer: 'Feathers and wax' },
+                        { question: 'What was the father\'s name?', answer: 'Daedalus' }
+                    ]
+                },
+                {
+                    id: 'pandora',
+                    title: 'The Box of Pandora',
+                    text: 'Pandora was the first woman created by the gods, a gift to mankind from Zeus as punishment for Prometheus stealing fire. Each god bestowed a gift upon her; Athena gave her skill in crafts, and Aphrodite gave her beauty. Hermes led her to Epimetheus, Prometheus’s brother, who foolishly accepted her despite his brother\'s warnings never to accept gifts from Zeus. Zeus gave Pandora a beautiful box, or more accurately, a large jar, strictly forbidding her to ever open it. Pandora possessed a natural curiosity, which Hermes had instilled in her. Day after day, she grew more and more tempted by the secrets the box might hold. One day, her curiosity finally overcame her willpower. She lifted the heavy lid of the jar just slightly. Immediately, a rush of terrible and malicious spirits flew out, filling the world with all forms of misery, including plagues, sorrow, and disease. Horrified, Pandora quickly slammed the lid shut. Only one benevolent spirit remained trapped inside: the spirit of Hope. Ever since that moment, suffering has been part of the human condition, but Hope remains to soothe mankind\'s burdens.',
+                    quiz: [
+                        { question: 'Who was the first woman?', answer: 'Pandora' },
+                        { question: 'Which spirit remained trapped in the box?', answer: 'Hope' }
+                    ]
+                }
+            ],
+            biographies: [
+                {
+                    id: 'curie',
+                    title: 'Marie Curie',
+                    text: 'Marie Curie, born Maria Skłodowska in Poland in 1867, was a pioneering physicist and chemist who conducted groundbreaking research on radioactivity. She was the first woman to win a Nobel Prize, the first person and the only woman to win the Nobel Prize twice, and the only person to win the Nobel Prize in two different scientific fields. In 1891, she moved to Paris to study at the Sorbonne, where she met and married Pierre Curie, a fellow scientist. Together, they investigated the mysterious radiation emanating from pitchblende, an ore. Their work led to the discovery of two new elements: polonium, named after Marie\'s native country, and radium. They were jointly awarded the 1903 Nobel Prize in Physics. Following Pierre\'s tragic death, Marie continued her research alone. She went on to purify radium metal and was awarded the 1911 Nobel Prize in Chemistry for her work. During World War I, she developed mobile X-ray units, known as "petites Curies," which helped diagnose injuries of soldiers near the battlefront. Her scientific contributions have had a profound impact on physics and medicine, particularly in cancer treatment. She died in 1934 from aplastic anemia, likely contracted from her prolonged exposure to radiation.',
+                    quiz: [
+                        { question: 'What two elements did Marie and Pierre discover?', answer: 'Polonium and radium' },
+                        { question: 'How many Nobel Prizes did Marie Curie win?', answer: 'Two' }
+                    ]
+                },
+                {
+                    id: 'davinci',
+                    title: 'Leonardo da Vinci',
+                    text: 'Leonardo da Vinci, born in 1452 in Vinci, Italy, was perhaps the ultimate Renaissance man. He was a painter, sculptor, architect, musician, scientist, inventor, and much more. His genius embodied the humanistic ideal of the era. His artistic works, such as the Mona Lisa and The Last Supper, are among the most recognizable and influential paintings in history. However, his contributions extended far beyond art. Da Vinci filled thousands of pages of notebooks with observations and diagrams on everything from human anatomy and botany to geology and fluid dynamics. He designed machines that were centuries ahead of his time, including prototypes for a helicopter, a tank, and a diving suit. His anatomical studies were so detailed and accurate that they are still respected today. He meticulously dissected human bodies, defying societal norms, to understand bone, muscle, and organ structure. He viewed art and science as complementary, using his scientific understanding to bring unprecedented realism and depth to his paintings. Leonardo spent his final years in France, serving King Francis I, but his legacy as a brilliant polymath continues to inspire thinkers and creators across all disciplines globally.',
+                    quiz: [
+                        { question: 'What are two of his famous paintings?', answer: 'Mona Lisa and The Last Supper' },
+                        { question: 'Which era is he the ultimate example of?', answer: 'Renaissance' }
+                    ]
+                },
+                {
+                    id: 'einstein',
+                    title: 'Albert Einstein',
+                    text: 'Albert Einstein (1879–1955) was a German-born theoretical physicist who developed the theory of relativity, one of the two pillars of modern physics. He is best known to the general public for his mass–energy equivalence formula $E = mc^2$, which has been dubbed "the world\'s most famous equation." He received the 1921 Nobel Prize in Physics for his discovery of the law of the photoelectric effect, a pivotal step in the evolution of quantum theory. Despite his monumental scientific contributions, Einstein was a lifelong advocate for peace and socialism, often speaking out against nationalism and war. His distinctive appearance, with unkempt hair and expressive eyes, cemented his image as the archetype of the absent-minded professor and a symbol of genius.',
+                    quiz: [
+                        { question: 'What is the most famous equation of Einstein?', answer: 'E=mc^2' },
+                        { question: 'For which discovery did he win the Nobel Prize?', answer: 'Photoelectric effect' }
+                    ]
+                },
+                {
+                    id: 'mandela',
+                    title: 'Nelson Mandela',
+                    text: 'Nelson Mandela (1918–2013) was a South African anti-apartheid revolutionary, political leader, and philanthropist who served as President of South Africa from 1994 to 1999. He was the country\'s first black head of state and the first elected in a fully representative democratic election. His government focused on dismantling the legacy of apartheid by tackling institutionalised racism and fostering reconciliation. Mandela was arrested in 1964 and spent 27 years in prison for his activism against the apartheid regime, becoming a global symbol of resistance and dignity. Upon his release in 1990, he worked with President F.W. de Klerk to abolish apartheid, a joint effort that earned them the Nobel Peace Prize in 1993.',
+                    quiz: [
+                        { question: 'In what country did Nelson Mandela serve as President?', answer: 'South Africa' },
+                        { question: 'How many years did he spend in prison?', answer: '27' }
+                    ]
+                },
+                {
+                    id: 'lutherking',
+                    title: 'Martin Luther King Jr.',
+                    text: 'Martin Luther King Jr. (1929–1968) was an American Baptist minister and activist who became the most visible spokesperson and leader in the Civil Rights Movement from 1955 until his assassination in 1968. He advanced civil rights using nonviolence and civil disobedience, inspired by the Christian faith and the nonviolent activism of Mahatma Gandhi. King led the 1955 Montgomery Bus Boycott and served as the first president of the Southern Christian Leadership Conference. His most famous moment was the 1963 March on Washington for Jobs and Freedom, where he delivered his iconic "I Have a Dream" speech. He was awarded the Nobel Peace Prize in 1964 for combating racial inequality through nonviolent resistance.',
+                    quiz: [
+                        { question: 'What was the famous speech he delivered in 1963?', answer: 'I Have a Dream' },
+                        { question: 'What country was he from?', answer: 'United States' }
+                    ]
+                },
+                {
+                    id: 'gandhi',
+                    title: 'Mahatma Gandhi',
+                    text: 'Mohandas Karamchand Gandhi (1869–1948) was an Indian lawyer, anti-colonial nationalist, and political ethicist, who employed nonviolent resistance to lead the successful campaign for India\'s independence from British Rule, and in turn inspired movements for civil rights and freedom across the world. His principle of nonviolent resistance, called **Satyagraha**, has influenced leaders like Martin Luther King Jr. and Nelson Mandela. He is often referred to as the "Father of the Nation" in India. One of his most famous actions was the **Salt March** in 1930, a protest against the British salt tax.',
+                    quiz: [
+                        { question: 'What is the name of his principle of nonviolent resistance?', answer: 'Satyagraha' },
+                        { question: 'What was the famous march he led in 1930?', answer: 'Salt March' }
+                    ]
+                },
+                {
+                    id: 'frida',
+                    title: 'Frida Kahlo',
+                    text: 'Frida Kahlo (1907–1954) was a Mexican painter known for her uncompromising and vibrant self-portraits that address identity, postcolonialism, gender, class, and race in Mexican society. Her work is often characterized by its surrealist elements and depiction of pain, reflecting the lifelong medical struggles she faced following a childhood bout with polio and a severe bus accident in her youth. Despite the constant pain, she became an active member of the post-revolutionary Mexican cultural scene. She is celebrated as an icon for Chicanos, the feminist movement, and the LGBTQ+ community. Her most famous work is possibly **The Two Fridas** (1939).',
+                    quiz: [
+                        { question: 'What country was Frida Kahlo from?', answer: 'Mexico' },
+                        { question: 'What type of art are her paintings often associated with?', answer: 'Surrealism' }
+                    ]
+                },
+                {
+                    id: 'newton',
+                    title: 'Isaac Newton',
+                    text: 'Sir Isaac Newton (1643–1727) was an English mathematician, physicist, astronomer, alchemist, and theologian, widely regarded as one of the most influential scientists of all time. His book **Philosophiæ Naturalis Principia Mathematica** (Mathematical Principles of Natural Philosophy), published in 1687, formulated the laws of motion and universal gravitation that formed the foundation of classical mechanics. Newton also made seminal contributions to optics, including his work on the composition of white light, and he developed calculus, a major branch of mathematics, independently of Gottfried Leibniz. The famous story involves an apple falling from a tree, which allegedly inspired his theory of gravitation.',
+                    quiz: [
+                        { question: 'What phenomenon did the falling apple allegedly inspire?', answer: 'Universal gravitation' },
+                        { question: 'What branch of mathematics did he develop?', answer: 'Calculus' }
+                    ]
+                },
+                {
+                    id: 'mozart',
+                    title: 'Wolfgang Amadeus Mozart',
+                    text: 'Wolfgang Amadeus Mozart (1756–1791) was a prolific and influential composer of the Classical period. Born in Salzburg, he showed prodigious ability from a very early age, composing from the age of five and performing before European royalty. He composed over 600 works, many acknowledged as pinnacles of symphonic, concertante, chamber, operatic, and choral music. Despite his genius, he struggled financially throughout his life. His works include famous operas like **The Magic Flute** and **The Marriage of Figaro**, and his final piece, the **Requiem**, was unfinished at the time of his death at the age of 35.',
+                    quiz: [
+                        { question: 'What musical period is Mozart associated with?', answer: 'Classical' },
+                        { question: 'What was the name of his final, unfinished composition?', answer: 'Requiem' }
+                    ]
+                },
+                {
+                    id: 'copernicus',
+                    title: 'Nicolaus Copernicus',
+                    text: 'Nicolaus Copernicus (1473–1543) was a Renaissance astronomer and mathematician from Royal Prussia. He formulated a model of the universe that placed the Sun rather than the Earth at its center, known as **Heliocentrism**. His revolutionary model, detailed in his book **De revolutionibus orbium coelestium** (On the Revolutions of the Heavenly Spheres), marked the beginning of the Copernican Revolution and made a pivotal contribution to the Scientific Revolution. Before his work, the Ptolemaic, Earth-centered (Geocentric) model had been widely accepted for over a thousand years. His work provided the foundation for later astronomers like Galileo Galilei and Johannes Kepler.',
+                    quiz: [
+                        { question: 'What is the name of the model that places the Sun at the center?', answer: 'Heliocentrism' },
+                        { question: 'What type of model was accepted before Copernicus?', answer: 'Geocentric' }
+                    ]
+                },
+                {
+                    id: 'pablo_picasso',
+                    title: 'Pablo Picasso',
+                    text: 'Pablo Picasso (1881–1973) was a Spanish painter, sculptor, printmaker, ceramicist, and theatre designer who spent most of his adult life in France. Regarded as one of the most influential artists of the 20th century, he is known for co-founding the **Cubist** movement, the invention of constructed sculpture, and the co-invention of the collage technique. His prolific output is categorized into several distinct periods, including the Blue Period and the Rose Period. Among his most famous works is the painting **Guernica** (1937), a dramatic depiction of the bombing of a Basque town during the Spanish Civil War.',
+                    quiz: [
+                        { question: 'What artistic movement did he co-found?', answer: 'Cubism' },
+                        { question: 'What is the name of his famous anti-war painting?', answer: 'Guernica' }
+                    ]
+                },
+                {
+                    id: 'teslac',
+                    title: 'Nikola Tesla',
+                    text: 'Nikola Tesla (1856–1943) was a Serbian-American inventor, electrical engineer, mechanical engineer, and futurist best known for his contributions to the design of the modern alternating current (AC) electricity supply system. He worked for a time with Thomas Edison but eventually became his rival in the "War of Currents," advocating for AC over Edison\'s direct current (DC). Among his many inventions are the **Tesla Coil** and the first hydroelectric power plant at Niagara Falls. He was a visionary who also contributed to wireless communication, remote control, and robotics, though many of his radical ideas were dismissed during his lifetime.',
+                    quiz: [
+                        { question: 'What electricity system is Tesla best known for developing?', answer: 'Alternating Current (AC)' },
+                        { question: 'What famous inventor was his rival in the "War of Currents"?', answer: 'Thomas Edison' }
+                    ]
+                },
+                {
+                    id: 'afrank',
+                    title: 'Anne Frank',
+                    text: 'Annelies Marie "Anne" Frank (1929–1945) was a German-Dutch diarist who gained posthumous fame after her diary was published. She kept the diary while hiding with her family and four friends in an Amsterdam attic during the German occupation of the Netherlands in World War II. Her diary, **The Diary of a Young Girl**, provides a moving and insightful perspective on the daily life of Jews in hiding and the horrors of the Holocaust. The family was eventually discovered in August 1944. Anne died of typhus in the Bergen-Belsen concentration camp shortly before the camp\'s liberation. Her diary remains one of the most widely read books in the world.',
+                    quiz: [
+                        { question: 'What is the name of her famous diary?', answer: 'The Diary of a Young Girl' },
+                        { question: 'Where did her family hide during the war?', answer: 'In an attic in Amsterdam' }
+                    ]
+                }
+            ]
+        };
+
+        // --- VARIABLES GLOBALES ---
+        let currentStory = null;
+        let storyWords = [];
+        let wordIndex = 0;
+        let timerInterval = null;
+        let readingInterval = null;
+        let wordsPerMinute = 0;
+        let isReadingActive = false;
+        let readingPaused = false;
+        let timeElapsedOnPause = 0; 
+        let totalWordsCount = 0; 
+
+        const $topicSelector = document.getElementById('topic-selector');
+        const $storySelector = document.getElementById('story-selector');
+        const $readingArea = document.getElementById('reading-area');
+        const $storyTitle = document.getElementById('story-title');
+        const $storyText = document.getElementById('story-text');
+        const $timer = document.getElementById('timer');
+        const $startStopButton = document.getElementById('start-stop-reading');
+        const $finishButton = document.getElementById('finish-reading');
+        const $quizContainer = document.getElementById('quiz-container');
+        const $quizQuestions = document.getElementById('quiz-questions');
+        const $submitQuiz = document.getElementById('submit-quiz');
+        const $quizResult = document.getElementById('quiz-result');
+        const $datetimeDisplay = document.getElementById('datetime'); // Elemento para la hora/fecha
+
+        // --- FUNCIÓN DE FECHA Y HORA EN TIEMPO REAL (NUEVA) ---
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: true 
+            };
+            const formattedDate = now.toLocaleDateString('es-ES', options);
+            $datetimeDisplay.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+        }
+        
+        // Inicia la actualización de la fecha y hora
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // Llama inmediatamente para evitar un retraso inicial
+
+        // --- FUNCIONES DE CRONÓMETRO ---
+        function updateTimer() {
+            timeElapsedOnPause++;
+            const totalSeconds = timeElapsedOnPause;
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            $timer.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            clearInterval(readingInterval);
+            isReadingActive = false;
+            readingPaused = true;
+            $startStopButton.textContent = 'Reanudar';
+            $finishButton.classList.remove('hidden');
+        }
+        
+        // --- FUNCIÓN DE SCROLL AUTOMÁTICO ---
+        function scrollToHighlightedWord(element) {
+            const container = $storyText;
+            const containerScrollTop = container.scrollTop;
+            const containerHeight = container.clientHeight;
+            const elementTop = element.offsetTop;
+            const elementHeight = element.offsetHeight;
+
+            if (elementTop < containerScrollTop || elementTop + elementHeight > containerScrollTop + containerHeight) {
+                container.scrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
+            }
+        }
+
+        // --- FUNCIONES DE LECTURA Y RESALTE ---
+        function highlightNextWord() {
+            if (wordIndex > 0) {
+                const previousWordElement = storyWords[wordIndex - 1];
+                if (previousWordElement) {
+                    previousWordElement.classList.remove('highlight');
+                }
+            }
+
+            if (wordIndex < storyWords.length) {
+                const currentWordElement = storyWords[wordIndex];
+                currentWordElement.classList.add('highlight');
+                scrollToHighlightedWord(currentWordElement);
+                
+                wordIndex++;
+            } else {
+                stopTimer(); 
+                $startStopButton.textContent = 'Terminado';
+                $startStopButton.disabled = true;
+                $finishButton.classList.remove('hidden');
+                alert(`¡Lectura terminada en ${$timer.textContent}! Procede al cuestionario.`);
+            }
+        }
+
+        function initializeStoryText() {
+            if (!currentStory) return;
+
+            $storyText.innerHTML = '';
+            wordIndex = 0;
+            timeElapsedOnPause = 0;
+            $timer.textContent = '00:00:00';
+            $startStopButton.textContent = 'Iniciar Lectura';
+            readingPaused = false;
+            
+            const textContent = currentStory.text.split(/\s+/).filter(word => word.length > 0);
+            totalWordsCount = textContent.length; 
+            
+            storyWords = textContent.map(word => {
+                const span = document.createElement('span');
+                span.textContent = word + ' '; 
+                $storyText.appendChild(span);
+                return span;
+            });
+            $storyText.scrollTop = 0; 
+        }
+
+        function toggleReading() {
+            if (!currentStory || wordsPerMinute === 0) {
+                alert('Por favor, selecciona una historia y una velocidad.');
+                return;
+            }
+
+            if (isReadingActive) {
+                stopTimer();
+            } else {
+                const msPerWord = 60000 / wordsPerMinute;
+
+                startTimer();
+                readingInterval = setInterval(highlightNextWord, msPerWord);
+                isReadingActive = true;
+                readingPaused = false;
+                $startStopButton.textContent = 'Detener/Pausar';
+                $finishButton.classList.add('hidden');
+            }
+        }
+
+        // --- FUNCIONES DE QUIZ ---
+        function calculateRealWPM() {
+            if (timeElapsedOnPause === 0 || totalWordsCount === 0) return 0;
+            return (totalWordsCount / timeElapsedOnPause) * 60;
+        }
+
+        function renderQuiz() {
+            $quizQuestions.innerHTML = '';
+            currentStory.quiz.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.classList.add('quiz-question');
+                div.innerHTML = `
+                    <p><strong>${index + 1}. ${q.question}</strong></p>
+                    <input type="text" id="q-${index}" placeholder="Escribe tu respuesta en inglés">
+                    <span id="feedback-q-${index}" class="feedback-text hidden"></span>
+                `;
+                $quizQuestions.appendChild(div);
+            });
+            $quizContainer.classList.remove('hidden');
+            $quizResult.textContent = '';
+        }
+
+        function submitQuiz() {
+            let correctAnswers = 0;
+            currentStory.quiz.forEach((q, index) => {
+                const input = document.getElementById(`q-${index}`);
+                const feedbackSpan = document.getElementById(`feedback-q-${index}`); 
+                
+                const userAnswer = input.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                const correctAnswer = q.answer.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+
+                if (userAnswer === correctAnswer) {
+                    correctAnswers++;
+                    input.style.backgroundColor = '#d4edda';
+                    input.style.borderColor = '#4caf50';
+                    feedbackSpan.classList.add('hidden');
+                } else {
+                    input.style.backgroundColor = '#f8d7da';
+                    input.style.borderColor = '#f44336';
+                    feedbackSpan.textContent = `Respuesta correcta: ${q.answer}`;
+                    feedbackSpan.classList.remove('hidden');
+                }
+            });
+
+            const totalQuestions = currentStory.quiz.length;
+            const percentage = (correctAnswers / totalQuestions) * 100;
+            const realWPM = calculateRealWPM(); 
+
+            $quizResult.innerHTML = `
+                <h4>Resultados de la Lectura</h4>
+                <p>⏱️ **Tiempo total de lectura:** **${$timer.textContent}**</p>
+                <p>🚀 **Velocidad Real:** **${realWPM.toFixed(0)} WPM** (Palabras por Minuto)</p>
+                <hr>
+                <h4>Resultados del Cuestionario</h4>
+                <p>✅ **Tu puntuación:** **${correctAnswers} de ${totalQuestions}**.</p>
+                <p>📊 **Rendimiento:** **${percentage.toFixed(0)}%**.</p>
+                <p>¡Selecciona un nuevo tema/historia para empezar de nuevo!</p>
+            `;
+        }
+
+        // --- MANEJADORES DE EVENTOS ---
+
+        $topicSelector.addEventListener('change', (e) => {
+            const topic = e.target.value;
+            const stories = STORIES_DATA[topic] || [];
+            
+            $storySelector.innerHTML = '<option value="default" disabled selected>Elige una historia</option>';
+            stories.forEach(story => {
+                const option = document.createElement('option');
+                option.value = story.id;
+                option.textContent = story.title;
+                $storySelector.appendChild(option);
+            });
+            $storySelector.disabled = false;
+            $readingArea.classList.add('hidden');
+            $quizContainer.classList.add('hidden');
+            currentStory = null;
+            $startStopButton.disabled = true;
+            $startStopButton.textContent = 'Selecciona Velocidad';
+        });
+
+        $storySelector.addEventListener('change', (e) => {
+            const storyId = e.target.value;
+            const topic = $topicSelector.value;
+            
+            currentStory = STORIES_DATA[topic].find(s => s.id === storyId);
+
+            if (currentStory) {
+                stopTimer();
+                isReadingActive = false;
+                $storyTitle.textContent = currentStory.title;
+                initializeStoryText();
+                $readingArea.classList.remove('hidden');
+                $finishButton.classList.add('hidden');
+                $quizContainer.classList.add('hidden');
+                $startStopButton.disabled = false;
+                $startStopButton.textContent = 'Iniciar Lectura';
+            }
+        });
+
+        document.querySelectorAll('.speed-controls button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const newWpm = parseInt(e.target.dataset.wpm);
+                wordsPerMinute = newWpm;
+                
+                if (currentStory) {
+                    stopTimer();
+                    initializeStoryText();
+                    $startStopButton.disabled = false;
+                    $startStopButton.textContent = 'Iniciar Lectura';
+                } else {
+                    alert('Selecciona una historia para comenzar.');
+                }
+            });
+        });
+
+        $startStopButton.addEventListener('click', toggleReading);
+
+        $finishButton.addEventListener('click', () => {
+            if (currentStory) {
+                if(wordIndex > 0 && storyWords[wordIndex - 1]) {
+                    storyWords[wordIndex - 1].classList.remove('highlight');
+                }
+                
+                $readingArea.classList.add('hidden');
+                $finishButton.classList.add('hidden');
+                renderQuiz();
+            }
+        });
+
+        $submitQuiz.addEventListener('click', submitQuiz);
+    </script>
+</body>
+</html>
